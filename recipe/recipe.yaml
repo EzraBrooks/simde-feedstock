@@ -1,0 +1,47 @@
+schema_version: 1
+
+context:
+  name: simde
+  version: "0.8.2"
+
+package:
+  name: ${{ name|lower }}
+  version: ${{ version }}
+
+source:
+  url: https://github.com/simd-everywhere/${{ name }}/archive/refs/tags/v${{ version }}.tar.gz
+  sha256: ed2a3268658f2f2a9b5367628a85ccd4cf9516460ed8604eed369653d49b25fb
+
+build:
+  number: 0
+
+requirements:
+  build:
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib("c") }}
+    - ninja
+    - meson
+  ignore_run_exports:
+    from_package:
+      - ${{ compiler('cxx') }}
+
+tests:
+  - requirements:
+      run:
+        - pkg-config
+    script:
+      - pkg-config --modversion ${{ name }}
+      - if: not win
+        then: test -f $PREFIX/include/simde/simde-common.h
+      - if: win
+        then: if not exist %LIBRARY_INC%\simde\simde-common.h exit 1
+
+about:
+  license: MIT
+  license_file: COPYING
+  summary: Implementations of SIMD instruction sets for systems which don't natively support them.
+  homepage: https://github.com/simd-everywhere/simde.git
+
+extra:
+  recipe-maintainers:
+    - jcarpent
